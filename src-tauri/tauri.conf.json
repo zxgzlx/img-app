@@ -19,6 +19,11 @@
       "protocol": {
         "asset": true,
         "assetScope": ["**"]
+      },
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
       }
     },
     "bundle": {

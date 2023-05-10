@@ -60,6 +60,11 @@
   height: auto;
 }
 
+.img-path-name {
+  font-size: 0.8em;
+  background-color: #2f2f2f11;
+}
+
 .custom-menu {
   position: fixed;
   background: #fff;

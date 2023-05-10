@@ -1,6 +1,7 @@
 import { shell } from "@tauri-apps/api";
 import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
+import { writeText } from '@tauri-apps/api/clipboard';
 
 await appWindow.onFileDropEvent((event) => {
   if (event.payload.type === 'hover') {
@@ -17,8 +18,6 @@ await appWindow.onFileDropEvent((event) => {
       waterfall.className = 'waterfall';
 
       paths.forEach(pathName => {
-        console.log('File path by mime:', pathName);
-
         let apiPath = convertFileSrc(pathName)
 
         const item = document.createElement('div');
@@ -27,9 +26,19 @@ await appWindow.onFileDropEvent((event) => {
         const img = document.createElement('img');
         img.src = apiPath;
         item.appendChild(img);
+        // 给图片添加路径名称
+        const text = document.createElement('div');
+        text.className = 'img-path-name';
+        text.textContent = pathName;
+        item.appendChild(text);
 
-        item.addEventListener('dblclick', () => {
-          console.log('双击了', pathName);
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.body.querySelector('.custom-menu')?.remove();
+        });
+
+        item.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
           shell.open("file://" + pathName);
         });
 
@@ -51,28 +60,42 @@ await appWindow.onFileDropEvent((event) => {
           // option2.setAttribute('value', pathName.substring(0, pathName.lastIndexOf('\\')));
           option2.setAttribute('value', pathName);
 
+          const option3 = document.createElement('div');
+          option3.textContent = '取色器';
+          option3.classList.add('menu-option');
+
           menu.appendChild(option1);
           menu.appendChild(option2);
+          menu.appendChild(option3);
           document.body.prepend(menu);
 
           option1.addEventListener('click', () => {
               // 点击选项1时执行操作
+              e.stopPropagation();
               document.body.removeChild(menu);
-              console.log('点击了', option1.getAttribute('value'));
               shell.open("file://" + option1.getAttribute('value'));
           });
 
-          option2.addEventListener('click', () => {
+          option2.addEventListener('click', (e) => {
+              // 点击不传递点击事件
+              e.stopPropagation();
               // 点击选项2时执行操作 
               document.body.removeChild(menu);
-              console.log('点击了', option2.getAttribute('value'));
-              // shell.open("file://" + option2.getAttribute('value'));
               invoke("cmd_explorer", {pathName: option2.getAttribute('value')});
+          });
+
+          option3.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            document.body.removeChild(menu);
+            // 调用系统的取色器
+            // @ts-ignore
+            const eyeDropper = new EyeDropper();
+            const eyeDropperOpen = await eyeDropper.open();
+            await writeText(eyeDropperOpen.sRGBHex);
           });
 
           menu.style.left = e.clientX + 'px';
           menu.style.top = e.clientY + 'px';
-          console.log("pageX:", e.clientX, "pageY:", e.clientY);
       }
       });
     })
@@ -82,9 +105,5 @@ await appWindow.onFileDropEvent((event) => {
  });
 
 window.addEventListener("DOMContentLoaded", () => {
-  // greetInputEl = document.querySelector("#greet-input");
-  // greetMsgEl = document.querySelector("#greet-msg");
-  // document
-  //   .querySelector("#greet-button")
-  //   ?.addEventListener("click", () => greet());
+
 });
