@@ -11,16 +11,14 @@
 # TODO
 
 - [ ] 可以打tag
-
 - [ ] 使用react + tailwindcss重写代码或者使用vue + tailwindcss重写
-
 - [ ] 展示音频预览，可播放，跳转
-
 - [ ] 展示spine动画
-
 - [ ] 展示3d模型
-
 - [ ] 引入webgpu
+- [ ] 引入ffmpeg处理音视频的功能
+- [ ] 以图搜图的功能
+- [ ] 支持多平台使用，目前只支持Windows
 
 # 小工具演示
 
