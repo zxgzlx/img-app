@@ -14,35 +14,6 @@
   -webkit-text-size-adjust: 100%;
 }
 
-.container {
-  margin: 0;
-  padding-top: 10vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #ffe21c);
-}
-
 .waterfall {
   column-count: 3;
   column-gap: 10px;
@@ -61,6 +32,9 @@
 }
 
 .img-path-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
   font-size: 0.8em;
   background-color: #2f2f2f11;
 }
@@ -79,6 +53,15 @@
 
 .menu-option:hover {
   background: #eee;
+}
+
+.drag-img {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  font-size: 40px;
+  justify-content: center;
+  align-items: center;
 }
 
 a {
@@ -124,10 +107,6 @@ button:active {
 input,
 button {
   outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
 }
 
 @media (prefers-color-scheme: dark) {

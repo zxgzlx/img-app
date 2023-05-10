@@ -1,18 +1,21 @@
 import { shell } from "@tauri-apps/api";
 import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
-import { writeText } from '@tauri-apps/api/clipboard';
+import { writeText } from '@tauri-apps/api/clipboard'; 
 
 await appWindow.onFileDropEvent((event) => {
   if (event.payload.type === 'hover') {
     console.log('User hovering', event.payload.paths);
   } else if (event.payload.type === 'drop') {
     console.log('User dropped', event.payload.paths);
+    if (event.payload.paths.length > 0) {
+      document.querySelector('.drag-img')?.remove();
+      document.querySelector('.waterfall')?.remove();
+    }
     event.payload.paths.forEach(async (path) => {
       console.log('File path:', path);
       let paths: string[] = await invoke('path_by_mime', { pathName: path });
-      
-      document.querySelector('.waterfall')?.remove();
+
       const waterfall = document.createElement('div');
       document.body.appendChild(waterfall);
       waterfall.className = 'waterfall';
@@ -42,6 +45,7 @@ await appWindow.onFileDropEvent((event) => {
           shell.open("file://" + pathName);
         });
 
+        // 右键菜单
         img.oncontextmenu = function (e) {
           e.preventDefault();
           console.log(e);
@@ -104,6 +108,14 @@ await appWindow.onFileDropEvent((event) => {
     console.log('File drop cancelled');
   }
  });
+
+
+document.addEventListener('click', (event) => {
+  if (event.button === 0) {
+    event.stopPropagation();
+    document.body.querySelector('.custom-menu')?.remove();
+  } 
+})  
 
 window.addEventListener("DOMContentLoaded", () => {
 
