@@ -29,7 +29,7 @@ await appWindow.onFileDropEvent((event) => {
         // 给图片添加路径名称
         const text = document.createElement('div');
         text.className = 'img-path-name';
-        text.textContent = pathName;
+        text.textContent = pathName.substring(pathName.lastIndexOf('\\') + 1, pathName.lastIndexOf('.'));
         item.appendChild(text);
 
         item.addEventListener('click', (e) => {
@@ -91,6 +91,7 @@ await appWindow.onFileDropEvent((event) => {
             // @ts-ignore
             const eyeDropper = new EyeDropper();
             const eyeDropperOpen = await eyeDropper.open();
+            waterfall.style.backgroundColor = eyeDropperOpen.sRGBHex;
             await writeText(eyeDropperOpen.sRGBHex);
           });
 
