@@ -27,3 +27,8 @@
 ![](./md_img/2.jpg)
 
 ![](./md_img/3.jpg)
+# 运行
+> yarn i
+> yarn tauri dev
+> 或者
+> yarn tauri build
