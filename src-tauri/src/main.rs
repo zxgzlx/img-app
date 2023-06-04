@@ -12,8 +12,6 @@ struct C2S {
     name: String,
     dir: String,
     size: u64,
-    is_img: bool,
-    is_audio: bool,
     mime: String,
 }
 
@@ -30,15 +28,20 @@ fn path_by_mime(path_name: &str) -> Vec<C2S> {
         }
         // 打印dir,而不是文件
         let path_name = &entry.path().to_str().unwrap().to_string();
-        if find_mimetype(path_name) {
+        let ext = entry
+            .path()
+            .extension()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+        if find_mimetype(&ext) {
             let c2s = C2S {
                 path: path_name.to_string(),
-                name: path.file_name().unwrap().to_str().unwrap().to_string(),
+                name: entry.file_name().to_str().unwrap().to_string(),
                 dir: entry.path().parent().unwrap().to_str().unwrap().to_string(),
                 size: std::fs::metadata(path_name).unwrap().len(),
-                is_img: true,
-                is_audio: false,
-                mime: entry.path().extension().unwrap().to_str().unwrap().to_string(),
+                mime: ext,
             };
             res.push(c2s);
         }
@@ -51,7 +54,11 @@ fn path_by_mime(path_name: &str) -> Vec<C2S> {
 #[tauri::command]
 fn cmd_explorer(path_name: &str) {
     println!("name={}", path_name);
-   std::process::Command::new("explorer").arg("/select,").arg(path_name).spawn().unwrap();
+    std::process::Command::new("explorer")
+        .arg("/select,")
+        .arg(path_name)
+        .spawn()
+        .unwrap();
 }
 
 fn main() {
@@ -62,7 +69,7 @@ fn main() {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
                 window.close_devtools();
-              }
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![path_by_mime, cmd_explorer])
@@ -70,19 +77,11 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-fn find_mimetype (filename : &String) -> bool{
-
-    println!("filename={}", filename);
-    let parts : Vec<&str> = filename.split('.').collect();
-
-    let res = match parts.last() {
-            Some(v) =>
-                match *v {
-                    "mp3" | "wav" | "ogg" => true,
-                    "jpg" | "png" | "gif" => true,
-                    &_ => false,
-                },
-            None => false,
-        };
+fn find_mimetype(ext: &str) -> bool {
+    let res = match ext {
+        "mp3" | "wav" | "ogg" => true,
+        "jpg" | "png" | "gif" => true,
+        &_ => false,
+    };
     return res;
 }
