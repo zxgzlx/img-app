@@ -23,7 +23,10 @@ function render(paths: string[]) {
   curPaths = paths;
   paths.forEach(async (path) => {
     console.log('File path:', path);
-    let paths: string[] = await invoke('path_by_mime', { pathName: path });
+    let paths: any[] = await invoke('path_by_mime', { pathName: path });
+
+    console.log("=================", paths);
+    return;
 
     const waterfall = document.createElement('div');
     document.body.appendChild(waterfall);
