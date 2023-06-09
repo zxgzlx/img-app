@@ -1,4 +1,4 @@
-import { shell } from "@tauri-apps/api";
+import { fs, shell } from "@tauri-apps/api";
 import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
 import { writeText } from '@tauri-apps/api/clipboard';
@@ -13,15 +13,36 @@ interface CustomFile {
   mime: string;
 }
 
+interface Config {
+  paths: string[];
+}
+
+async function readConfig():Promise<Config> {
+  let isExits = await fs.exists('config.json', { dir: fs.BaseDirectory.Resource });
+  if (isExits) {
+    let res = await fs.readTextFile('config.json',{ dir: fs.BaseDirectory.Resource });
+    let config = JSON.parse(res) as Config;
+    return new Promise((resolve, reject) => {
+      resolve(config);
+    });
+  }
+  return new Promise((resolve, reject) => {
+    reject();
+  });
+}
+
+async function writeConfig(path: string[]) {
+  await fs.writeTextFile('config.json', JSON.stringify({
+    "paths": path
+  }), { dir: fs.BaseDirectory.Resource });
+}
+
 await appWindow.onFileDropEvent((event) => {
   if (event.payload.type === 'hover') {
     console.log('User hovering', event.payload.paths);
   } else if (event.payload.type === 'drop') {
     console.log('User dropped', event.payload.paths);
-    if (event.payload.paths.length > 0) {
-      document.querySelector('.drag-img')?.remove();
-      document.querySelector('.waterfall')?.remove();
-    }
+    writeConfig(event.payload.paths);
     render(event.payload.paths);
   } else {
     console.log('File drop cancelled');
@@ -31,6 +52,11 @@ await appWindow.onFileDropEvent((event) => {
 let curPaths: string[] = [];
 function render(paths: string[]) {
   curPaths = paths;
+  console.log('paths:', paths);
+  if (!paths) return;
+  document.querySelector('.drag-img')?.remove();
+  document.querySelector('.waterfall')?.remove();
+
   paths.forEach(async (path) => {
     console.log('File path:', path);
     let customFiles: CustomFile[] = await invoke('path_by_mime', { pathName: path });
@@ -79,7 +105,7 @@ function render(paths: string[]) {
 
       item.addEventListener('dblclick', (e) => {
         e.stopPropagation();
-        shell.open("file://" + customFile);
+        shell.open("file://" + customFile.path);
       });
 
       // 右键菜单
@@ -141,7 +167,7 @@ function render(paths: string[]) {
           await writeText(eyeDropperOpen.sRGBHex);
         });
 
-        option3.addEventListener('click', async (e) => {
+        option4.addEventListener('click', async (e) => {
           e.stopPropagation();
           document.body.removeChild(menu);
           render(curPaths);
@@ -164,3 +190,12 @@ document.addEventListener('click', (event) => {
 window.addEventListener("DOMContentLoaded", () => {
 
 });
+
+async function run() {
+  let config = await readConfig();
+  if (config) {
+    render(config.paths);
+  }
+}
+
+run();

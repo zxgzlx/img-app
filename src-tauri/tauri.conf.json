@@ -24,6 +24,10 @@
         "all": true,
         "writeText": true,
         "readText": true
+      },
+      "fs":{
+        "all": true,
+        "scope": ["$RESOURCE/*"]
       }
     },
     "bundle": {
