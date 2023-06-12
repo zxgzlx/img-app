@@ -17,18 +17,14 @@ interface Config {
   paths: string[];
 }
 
-async function readConfig():Promise<Config> {
+async function readConfig() {
   let isExits = await fs.exists('config.json', { dir: fs.BaseDirectory.Resource });
   if (isExits) {
     let res = await fs.readTextFile('config.json',{ dir: fs.BaseDirectory.Resource });
     let config = JSON.parse(res) as Config;
-    return new Promise((resolve, reject) => {
-      resolve(config);
-    });
+    return config;
   }
-  return new Promise((resolve, reject) => {
-    reject();
-  });
+  return null;
 }
 
 async function writeConfig(path: string[]) {
